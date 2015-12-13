@@ -212,6 +212,26 @@ func readBuffer(socket: OctopusSocket) -> Int {
   return Int(buffer[0])
 }
 
+public func getPeerName(socket: OctopusSocket) throws -> String {
+    var addr = sockaddr()
+    var length: socklen_t = socklen_t(sizeof(sockaddr))
+    var hostBuffer = [CChar](count: Int(NI_MAXHOST), repeatedValue: 0)
+
+    if getpeername(socket.fileDescriptor, &addr, &length) != 0 {
+      throw SocketError.GetPeerNameFailed(lastErrorAsString())
+    }
+
+    if getnameinfo(&addr, length, &hostBuffer, socklen_t(hostBuffer.count), nil, 0, NI_NUMERICHOST) != 0 {
+        throw SocketError.GetNameInfoFailed(lastErrorAsString())
+    }
+
+    guard let name = String.fromCString(hostBuffer) else {
+        throw SocketError.ConvertingPeerNameFailed
+    }
+
+    return name
+}
+
 func release(socket: Int32) {
   shutdownSocket(socket)
   close(socket)

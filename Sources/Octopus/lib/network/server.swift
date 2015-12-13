@@ -31,8 +31,32 @@ public class OctopusServer {
           self.clients.insert(client)
         }
 
-        print("client connected !")
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0)) {
+          // let address = try! getPeerName(client)
+
+          while let request = try? readSocket(client) {
+            print(request)
+          }
+
+          release(client.fileDescriptor)
+
+          sync (self) {
+            self.clients.remove(client)
+          }
+        }
       }
+    }
+  }
+
+  public func stop() {
+    release(self.socket.fileDescriptor)
+
+    sync (self) {
+      for client in self.clients {
+        shutdownSocket(client.fileDescriptor)
+      }
+
+      self.clients.removeAll(keepCapacity: true)
     }
   }
 }
