@@ -53,12 +53,13 @@ public class OctopusServer {
           let requestString = try? readSocket(client)
 
           do {
+            print(requestString)
             let request = try parseRequest(requestString!)
             print("\(request.uri) \(request.method)")
           } catch let e {
-            print("having an error")
             let error = e as? HTTPRequestError
             let (code, message) = getHTTPRequestErrorParams(error!)
+            print("error is: HTTP/1.1 \(code) \(message)")
             try! respond(client, payload: "HTTP/1.1 \(code) \(message)")
           }
 
