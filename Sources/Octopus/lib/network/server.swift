@@ -19,7 +19,7 @@ public class OctopusServer {
   var socket:  OctopusSocket
   var clients: Set<OctopusSocket>
 
-  init(port: in_port_t = 8080) {
+  public init(port: in_port_t = 8080) {
     self.socket  = try! createSocket(port)
     self.clients = Set<OctopusSocket>()
   }
