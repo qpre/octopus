@@ -54,8 +54,24 @@ enum SocketError: ErrorType {
 }
 
 // OctopusSocket
-public struct OctopusSocket {
-  var fileDescriptor: Int32 = -1
+public struct OctopusSocket: Hashable, Equatable {
+  public var hashValue: Int = -1
+  public var fileDescriptor: Int32 {
+    get {
+      return Int32(self.hashValue)
+    }
+    set(value) {
+      self.hashValue = Int(value)
+    }
+  }
+
+  init() {
+    self.fileDescriptor = -1
+  }
+}
+
+public func ==(socket1: OctopusSocket, socket2: OctopusSocket) -> Bool {
+  return socket1.fileDescriptor == socket2.fileDescriptor
 }
 
 // Returns the last error encountered as a string
