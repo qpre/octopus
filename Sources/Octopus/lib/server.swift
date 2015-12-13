@@ -51,17 +51,16 @@ public class OctopusServer {
           print("got a client from \(address)")
 
           let requestString = try? readSocket(client)
-          var request: HTTPRequest?
 
           do {
-            request = try parseRequest(requestString!)
+            let request = try parseRequest(requestString!)
+            print("\(request.uri) \(request.method)")
           } catch let e {
+            print("having an error")
             let error = e as? HTTPRequestError
             let (code, message) = getHTTPRequestErrorParams(error!)
             try! respond(client, payload: "HTTP/1.1 \(code) \(message)")
           }
-
-          print("\(request?.uri) \(request?.method)")
 
           try! respond(client, payload: "Welcome on Octopus, Please setup a new Router")
 
@@ -99,4 +98,6 @@ func respond(socket: OctopusSocket, payload: String = "") throws {
   try writeSocket(socket, string: "Content-type: text-plain\n")
   try writeSocket(socket, string: "\r\n")
   try writeSocket(socket, string: payload)
+
+  print("response sent to client")
 }
