@@ -34,10 +34,10 @@ public class OctopusServer {
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0)) {
           // let address = try! getPeerName(client)
 
-          while let request = try? readSocket(client) {
-            print(request)
-            try! respond(client)
-          }
+          let request = try? readSocket(client)
+          print(request)
+
+          try! respond(client, payload: "Welcome on Octopus, Please setup a new Router")
 
           release(client.fileDescriptor)
 
@@ -62,8 +62,11 @@ public class OctopusServer {
   }
 }
 
-func respond(socket: OctopusSocket) throws {
+func respond(socket: OctopusSocket, payload: String = "") throws {
   try writeSocket(socket, string: "HTTP/1.1 200 OK\r\n")
-  try writeSocket(socket, string: "Content-Length: 0\r\n")
+  try writeSocket(socket, string: "Server: Octopus\n")
+  try writeSocket(socket, string: "Content-Length: \(payload.characters.count)\r\n")
+  try writeSocket(socket, string: "Content-type: text-plain\n")
   try writeSocket(socket, string: "\r\n")
+  try writeSocket(socket, string: payload)
 }
