@@ -11,19 +11,20 @@ import Foundation
 #endif
 
 func sync(handle: NSLock, closure: () -> ()) {
-    handle.lock()
-    closure()
-    handle.unlock();
+  handle.lock()
+  closure()
+  handle.unlock();
 }
 
 public class OctopusServer {
   var socket:  OctopusSocket
   var clients: Set<OctopusSocket>
-  let lock = NSLock()
+  var lock: NSLock
 
   public init(port: in_port_t = 8080) {
     self.socket  = try! createSocket(port)
     self.clients = Set<OctopusSocket>()
+    self.lock = NSLock()
   }
 
   public func start() throws {
