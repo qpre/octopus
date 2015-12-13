@@ -91,14 +91,16 @@ public class OctopusServer {
 func respond(socket: OctopusSocket, payload: String = "") throws {
   print("responding to client")
 
-  let payloadAsBytes: [UInt8] = Array(payload.utf8)
-
-  try writeSocket(socket, string: "HTTP/1.1 200 OK\r\n")
-  try writeSocket(socket, string: "Server: Octopus\n")
-  try writeSocket(socket, string: "Content-Length: \(payloadAsBytes.count ?? 0)\r\n")
-  try writeSocket(socket, string: "Content-type: text-plain\n")
-  try writeSocket(socket, string: "\r\n")
-  try writeSocket(socket, string: payload)
+  do {
+    try writeSocket(socket, string: "HTTP/1.1 200 OK\r\n")
+    try writeSocket(socket, string: "Server: Octopus\n")
+    try writeSocket(socket, string: "Content-Length: \(payload.characters.count)\r\n")
+    try writeSocket(socket, string: "Content-type: text-plain\n")
+    try writeSocket(socket, string: "\r\n")
+    try writeSocket(socket, string: payload)
+  } catch {
+    print("Failed at sending payload")
+  }
 
   print("response sent to client")
 }
