@@ -35,7 +35,7 @@ public class OctopusServer {
           // let address = try! getPeerName(client)
 
           while let request = try? readSocket(client) {
-            print(request)
+            try respond(client)
           }
 
           release(client.fileDescriptor)
@@ -59,4 +59,8 @@ public class OctopusServer {
       self.clients.removeAll(keepCapacity: true)
     }
   }
+}
+
+func respond(socket: OctopusSocket) throws {
+  try writeSocket(socket: socket, "HTTP/1.1 200 AU TOP)\r\n")
 }
