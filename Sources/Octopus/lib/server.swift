@@ -10,21 +10,26 @@ import Foundation
   import NSLinux
 #endif
 
+func sync(handle: NSLock, closure: () -> ()) {
+    handle.lock()
+    closure()
+    handle.unlock();
+}
+
 public class OctopusServer {
   var socket:  OctopusSocket
   var clients: Set<OctopusSocket>
-  var lock: NSLock
+  let lock = NSLock()
 
   public init(port: in_port_t = 8080) {
     self.socket  = try! createSocket(port)
     self.clients = Set<OctopusSocket>()
-    self.lock = NSLock()
   }
 
   public func start() throws {
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0)) {
       while let client = try? acceptClientSocket(self.socket) {
-        self.lock (self) {
+        sync (self.lock) {
           self.clients.insert(client)
         }
 
@@ -48,7 +53,7 @@ public class OctopusServer {
 
           release(client.fileDescriptor)
 
-          self.lock (self) {
+          sync (self.lock) {
             self.clients.remove(client)
           }
         }
@@ -59,7 +64,7 @@ public class OctopusServer {
   public func stop() {
     release(self.socket.fileDescriptor)
 
-    sync (self) {
+    sync (self.lock) {
       for client in self.clients {
         shutdownSocket(client.fileDescriptor)
       }
