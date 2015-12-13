@@ -17,6 +17,7 @@
 
   func shutdownSocket(socket: Int32) { shutdown(socket, Int32(SHUT_RDWR)) }
   func setNoSigPipe(socket: Int32) {} // do nothing, SO_NOSIGPIPE does not exist on Linux
+  func getSockAddr() -> sockaddr { return sockaddr() }
   func htons(value: in_port_t) -> CUnsignedShort {
     return (value << 8) + (value >> 8)
   }
@@ -30,6 +31,7 @@
     var noSigPipe: Int32 = 1
     setsockopt(socket, SOL_SOCKET, SO_NOSIGPIPE, &noSigPipe, socklen_t(sizeof(Int32)))
   }
+  func getSockAddr() -> sockaddr { return sockaddr(sa_len: 0, sa_family: 0, sa_data: (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)) }
   func htons(port: in_port_t) -> CUnsignedShort {
     let isLittleEndian = Int(OSHostByteOrder()) == OSLittleEndian
     return isLittleEndian ? _OSSwapInt16(port) : port
@@ -66,7 +68,7 @@ func sockaddr_cast(p: UnsafeMutablePointer<Void>) -> UnsafeMutablePointer<sockad
 }
 
 /*
-** @function createSocket
+** @function createServerSocket
 **
 ** @param {in_port_t} port to bind to
 ** @param {Int32} connectionTimeout
@@ -127,7 +129,23 @@ public func createSocket(port: in_port_t = 8080, connectionTimeout: Int32 = SOMA
   return oSocket
 }
 
-public func write(socket: OctopusSocket, string: String) throws {
+func acceptClientSocket(socket: OctopusSocket) throws -> OctopusSocket {
+  var sockAddr = getSockAddr()
+  var oSocket  = OctopusSocket()
+  var length: socklen_t = 0
+
+  oSocket.fileDescriptor = accept(socket.fileDescriptor, &sockAddr, &length)
+
+  if oSocket.fileDescriptor == -1 {
+    throw SocketError.AcceptFailed(lastErrorAsString())
+  }
+
+  setNoSigPipe(oSocket.fileDescriptor)
+
+  return oSocket
+}
+
+public func writeSocket(socket: OctopusSocket, string: String) throws {
   let data = [UInt8](string.utf8)
 
   try data.withUnsafeBufferPointer { pointer in
