@@ -35,14 +35,17 @@ public class OctopusServer {
           // let address = try! getPeerName(client)
 
           let requestString = try? readSocket(client)
+          var request: HTTPRequest?
 
           do {
-            let request = try parseRequest(requestString!)
+            request = try parseRequest(requestString!)
           } catch let e {
             let error = e as? HTTPRequestError
             let (code, message) = getHTTPRequestErrorParams(error!)
             try! respond(client, payload: "HTTP/1.1 \(code) \(message)")
           }
+
+          print("\(request?.uri) \(request?.method)")
 
           try! respond(client, payload: "Welcome on Octopus, Please setup a new Router")
 
