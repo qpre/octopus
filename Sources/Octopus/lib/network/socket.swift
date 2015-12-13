@@ -6,13 +6,14 @@
 #if os(Linux)
   import Glibc
 #else
-  import Foundation
+  import Darwin.C
 #endif
 
 // System specific values
 #if os(Linux)
   let sockStream = Int32(SOCK_STREAM.rawValue)
-  let sin_zero = (UInt8(0),UInt8(0),UInt8(0),UInt8(0),UInt8(0),UInt8(0),UInt8(0),UInt8(0))
+  let sinZero = (UInt8(0),UInt8(0),UInt8(0),UInt8(0),UInt8(0),UInt8(0),UInt8(0),UInt8(0))
+  let msgNoSignal: Int32 = Int32(MSG_NOSIGNAL)
 
   func shutdownSocket(socket: Int32) { shutdown(socket, Int32(SHUT_RDWR)) }
   func setNoSigPipe(socket: Int32) {} // do nothing, SO_NOSIGPIPE does not exist on Linux
@@ -21,7 +22,8 @@
   }
 #else
   let sockStream = SOCK_STREAM
-  let sin_zero = (Int8(0),Int8(0),Int8(0),Int8(0),Int8(0),Int8(0),Int8(0),Int8(0))
+  let sinZero = (Int8(0),Int8(0),Int8(0),Int8(0),Int8(0),Int8(0),Int8(0),Int8(0))
+  let msgNoSignal: Int32 = 0
 
   func shutdownSocket(socket: Int32) { Darwin.shutdown(socket, SHUT_RDWR) }
   func setNoSigPipe(socket: Int32) {
@@ -102,6 +104,7 @@ public func createSocket(port: in_port_t = 8080, connectionTimeout: Int32 = SOMA
   sockAddr.sin_family = sa_family_t(AF_INET)
   sockAddr.sin_port   = htons(port)
   sockAddr.sin_addr   = in_addr(s_addr: in_addr_t(0))
+  sockAddr.sin_zero   = sinZero
 
   #if !os(Linux)
     sockAddr.sin_len = sockLength
@@ -122,6 +125,57 @@ public func createSocket(port: in_port_t = 8080, connectionTimeout: Int32 = SOMA
   }
 
   return oSocket
+}
+
+public func write(socket: OctopusSocket, string: String) throws {
+  let data = [UInt8](string.utf8)
+
+  try data.withUnsafeBufferPointer { pointer in
+    var sent = 0
+
+    while sent < data.count {
+      let s = send(socket.fileDescriptor, pointer.baseAddress + sent, Int(data.count - sent), msgNoSignal)
+
+      if s <= 0 {
+        throw SocketError.WriteFailed(lastErrorAsString())
+      }
+
+      sent += s
+    }
+  }
+}
+
+public func readSocket(socket: OctopusSocket) throws -> String {
+  var res: String = ""
+  var bitsRead = 0;
+
+  repeat {
+    bitsRead = readBuffer(socket)
+
+    if bitsRead > 13 { // CR
+      res.append(Character(UnicodeScalar(bitsRead)))
+    }
+  } while bitsRead > 0 && bitsRead != 10
+
+  if bitsRead == -1 {
+    throw SocketError.RecvFailed(lastErrorAsString())
+  }
+
+  return res
+}
+
+func readBuffer(socket: OctopusSocket) -> Int {
+  var buffer = [UInt8](count: 1, repeatedValue: 0)
+
+  // get bits from the socket
+  let next = recv(socket.fileDescriptor as Int32, &buffer, Int(buffer.count), 0)
+
+  // are we done reading ?
+  if next <= 0 {
+    return next
+  }
+
+  return Int(buffer[0])
 }
 
 func release(socket: Int32) {
