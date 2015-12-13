@@ -63,7 +63,7 @@ public class OctopusServer {
 }
 
 func respond(socket: OctopusSocket) throws {
-  try writeSocket(socket, string: "HTTP/1.1 200 AU TOP)\r\n")
+  try writeSocket(socket, string: "HTTP/1.1 200 OK\r\n")
   try writeSocket(socket, string: "Content-Length: 0\r\n")
   try writeSocket(socket, string: "\r\n")
 }
