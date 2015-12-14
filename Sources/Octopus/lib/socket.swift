@@ -161,8 +161,10 @@ func acceptClientSocket(socket: OctopusSocket) throws -> OctopusSocket {
   return oSocket
 }
 
-public func writeSocket(socket: OctopusSocket, string: String) throws {
-  try writeUInt8(socket, data: [UInt8](string.utf8))
+public func writeSocket(socket: OctopusSocket, _ string: String) throws {
+  string.withCString { (bytes) in
+    send(socket.fileDescriptor, bytes, Int(strlen(bytes)), 0)
+  }
 }
 
 func writeUInt8(socket: OctopusSocket, data: [UInt8]) throws {
