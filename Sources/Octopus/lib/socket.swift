@@ -162,13 +162,18 @@ func acceptClientSocket(socket: OctopusSocket) throws -> OctopusSocket {
 }
 
 public func writeSocket(socket: OctopusSocket, string: String) throws {
+  printf("before cast")
   let data = [UInt8](string.utf8)
 
   try data.withUnsafeBufferPointer { pointer in
+    print("sending")
+
     var sent = 0
 
     while sent < data.count {
+      print("right before send")
       let s = send(socket.fileDescriptor, pointer.baseAddress + sent, Int(data.count - sent), msgNoSignal)
+      print("right after send")
 
       if s <= 0 {
         throw SocketError.WriteFailed(lastErrorAsString())
