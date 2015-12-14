@@ -161,7 +161,7 @@ func acceptClientSocket(socket: OctopusSocket) throws -> OctopusSocket {
   return oSocket
 }
 
-public func writeSocket(socket: OctopusSocket, _ string: String) throws {
+public func writeSocket(socket: OctopusSocket, string: String) throws {
   string.withCString { (bytes) in
     send(socket.fileDescriptor, bytes, Int(strlen(bytes)), 0)
   }
