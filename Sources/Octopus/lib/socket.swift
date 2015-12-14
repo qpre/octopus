@@ -162,7 +162,7 @@ func acceptClientSocket(socket: OctopusSocket) throws -> OctopusSocket {
 }
 
 public func writeSocket(socket: OctopusSocket, string: String) throws {
-  printf("before cast")
+  print("before cast")
   let data = [UInt8](string.utf8)
 
   try data.withUnsafeBufferPointer { pointer in
