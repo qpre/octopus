@@ -56,14 +56,13 @@ public class OctopusServer {
             print(requestString)
             let request = try parseRequest(requestString!)
             print("\(request.uri) \(request.method)")
+            try! respond(client, payload: "Welcome on Octopus, Please setup a new Router")
           } catch let e {
             let error = e as? HTTPRequestError
             let (code, message) = getHTTPRequestErrorParams(error!)
             print("error is: HTTP/1.1 \(code) \(message)")
             try! respond(client, payload: "HTTP/1.1 \(code) \(message)")
           }
-
-          try! respond(client, payload: "Welcome on Octopus, Please setup a new Router")
 
           release(client.fileDescriptor)
 
@@ -90,7 +89,6 @@ public class OctopusServer {
 
 func respond(socket: OctopusSocket, payload: String = "") throws {
   print("responding to client")
-
 
   try writeSocket(socket, string: "HTTP/1.1 200 OK\r\n")
   try writeSocket(socket, string: "Server: Octopus\n")

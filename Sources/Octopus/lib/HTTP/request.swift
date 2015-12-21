@@ -25,17 +25,26 @@ public func getHTTPRequestErrorParams(error: HTTPRequestError) -> (Int, String) 
 
 public func parseRequest(requestAsString: String) throws -> HTTPRequest {
   var request: HTTPRequest
+
+  print("parsing request")
+
   let params = requestAsString.characters.split{$0 == " "}.map(String.init)
+
+  print(params.count)
 
   if (params.count < 3) {
     throw HTTPRequestError.BadRequest
   }
+
+  print("finished parsing")
 
   request = HTTPRequest(
     method: try! parseMethod(params[0]),
     uri: params[1],
     version: params[2]
   )
+
+  print("request object built")
 
   return request
 }
