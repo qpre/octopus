@@ -187,24 +187,20 @@ func writeUInt8(socket: OctopusSocket, data: [UInt8]) throws {
 
 public func readSocket(socket: OctopusSocket) throws -> String {
   var res: String = ""
-  var bitsRead = 0;
+  var bitsRead : UInt8 = 0
 
   repeat {
-    bitsRead = readBuffer(socket)
+    bitsRead = try readBuffer(socket)
 
-    if bitsRead > 13 { // CR
+    if bitsRead > UInt8(13) { // CR
       res.append(Character(UnicodeScalar(bitsRead)))
     }
-  } while bitsRead > 0 && bitsRead != 10
-
-  if bitsRead == -1 {
-    throw SocketError.RecvFailed(lastErrorAsString())
-  }
+  } while bitsRead != UInt8(10)
 
   return res
 }
 
-func readBuffer(socket: OctopusSocket) -> Int {
+func readBuffer(socket: OctopusSocket) throws -> UInt8 {
   var buffer = [UInt8](count: 1, repeatedValue: 0)
 
   // get bits from the socket
@@ -212,10 +208,10 @@ func readBuffer(socket: OctopusSocket) -> Int {
 
   // are we done reading ?
   if next <= 0 {
-    return next
+    throw SocketError.RecvFailed(lastErrorAsString())
   }
 
-  return Int(buffer[0])
+  return buffer[0]
 }
 
 public func getPeerName(socket: OctopusSocket) throws -> String {

@@ -28,7 +28,7 @@ public func parseRequest(requestAsString: String) throws -> HTTPRequest {
 
   print("parsing request")
 
-  let params = requestAsString.characters.split{$0 == " "}.map(String.init)
+  let params = requestAsString.characters.split {$0 == " "}.map(String.init)
 
   print(params.count)
 
