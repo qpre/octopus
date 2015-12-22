@@ -23,10 +23,10 @@ public class OctopusServer {
   var clients: Set<OctopusSocket>
   var lock: NSLock
 
-  public init(port: in_port_t = 8080) {
+  public init(port: Int = 8080) {
     print("Starting on port \(port)...")
 
-    self.socket  = try! createSocket(port)
+    self.socket  = try! createSocket(in_port_t(port))
 
     print("Listening on port \(port)...")
 
