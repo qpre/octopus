@@ -8,8 +8,6 @@ import Foundation
 #if os(Linux)
   import Glibc
   import NSLinux
-#else
-  import Darwin.C
 #endif
 
 func sync(handle: NSLock, closure: () -> ()) {
