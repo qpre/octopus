@@ -6,9 +6,9 @@
 #if os(Linux)
   import Glibc
   import NSLinux
-#else
-  import Foundation
 #endif
+
+import Foundation
 
 func sync(handle: NSLock, closure: () -> ()) {
   handle.lock()
