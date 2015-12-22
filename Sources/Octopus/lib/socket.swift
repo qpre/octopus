@@ -9,6 +9,8 @@
   import Darwin.C
 #endif
 
+import Foundation
+
 // System specific values
 #if os(Linux)
   let sockStream = Int32(SOCK_STREAM.rawValue)

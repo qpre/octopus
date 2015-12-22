@@ -3,11 +3,6 @@
 */
 
 // System specific imports
-#if os(Linux)
-  import Glibc
-  import NSLinux
-#endif
-
 import Foundation
 
 func sync(handle: NSLock, closure: () -> ()) {
