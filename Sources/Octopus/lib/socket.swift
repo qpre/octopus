@@ -188,11 +188,12 @@ func writeUInt8(socket: OctopusSocket, data: [UInt8]) throws {
 public func readSocket(socket: OctopusSocket) throws -> String {
   var res: String = ""
   var bitsRead : UInt8 = 0
+  let CR = UInt8(13)
 
   repeat {
     bitsRead = try readBuffer(socket)
 
-    if bitsRead > UInt8(13) { // CR
+    if bitsRead > CR { // CR
       res.append(Character(UnicodeScalar(bitsRead)))
     }
   } while bitsRead != UInt8(10)

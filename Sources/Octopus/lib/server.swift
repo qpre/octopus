@@ -2,12 +2,12 @@
 ** server.swift
 */
 
-import Foundation
-
 // System specific imports
 #if os(Linux)
   import Glibc
   import NSLinux
+#else
+  import Foundation
 #endif
 
 func sync(handle: NSLock, closure: () -> ()) {
@@ -55,7 +55,7 @@ public class OctopusServer {
           do {
             print(requestString)
             let request = try parseRequest(requestString!)
-            print("\(request.uri) \(request.method)")
+            print(" \(request.method) \(request.uri)")
             try! respond(client, payload: "Welcome on Octopus, Please setup a new Router")
           } catch let e {
             let error = e as? HTTPRequestError
