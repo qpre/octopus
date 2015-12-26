@@ -22,7 +22,7 @@ public class OctopusServer {
   var lock: NSLock
 
   public init(port: Int = 8080) {
-    print("Starting on port \(port)...")
+    print("Starting server...")
 
     self.socket  = try! createSocket(in_port_t(port))
 
@@ -33,17 +33,11 @@ public class OctopusServer {
   }
 
   public func start() throws {
-    print("Launch server loop")
-
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0)) {
-      print("Accepting clients")
-
       while let client = try? acceptClientSocket(self.socket) {
         sync (self.lock) {
           self.clients.insert(client)
         }
-
-        print("got a client")
 
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0)) {
           let address = try! getPeerName(client)
@@ -88,14 +82,10 @@ public class OctopusServer {
 }
 
 func respond(socket: OctopusSocket, payload: String = "") throws {
-  print("responding to client")
-
   try writeSocket(socket, string: "HTTP/1.1 200 OK\r\n")
   try writeSocket(socket, string: "Server: Octopus\n")
   try writeSocket(socket, string: "Content-Length: \(payload.characters.count)\r\n")
   try writeSocket(socket, string: "Content-type: text-plain\n")
   try writeSocket(socket, string: "\r\n")
   try writeSocket(socket, string: payload)
-
-  print("response sent to client")
 }
