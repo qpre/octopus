@@ -8,10 +8,10 @@ public enum HTTPMethod {
 }
 
 /*
-** @enumeration HTTPRequestError
+** @enumeration HTTPError
 ** the different values an HTTP error can take
 */
-public enum HTTPRequestError: ErrorType {
+public enum HTTPError: ErrorType {
   case BadRequest
   case NotSupported
 }
@@ -27,11 +27,11 @@ public struct HTTPRequest {
 }
 
 /*
-** @function getHTTPRequestErrorParams
+** @function getHTTPErrorParams
 ** @returns a tuple with the error code and the error message
 **   for the encountered error
 */
-public func getHTTPRequestErrorParams(error: HTTPRequestError) -> (Int, String) {
+public func getHTTPErrorParams(error: HTTPError) -> (Int, String) {
   switch error {
     case .BadRequest:
       return (code: 400, message: "Bad Request")
@@ -52,7 +52,7 @@ public func parseRequest(requestAsString: String) throws -> HTTPRequest {
   print(params.count)
 
   if (params.count < 3) {
-    throw HTTPRequestError.BadRequest
+    throw HTTPError.BadRequest
   }
 
   request = HTTPRequest(
@@ -77,7 +77,7 @@ func parseMethod(string: String) throws -> HTTPMethod {
     case "POST":
       method = HTTPMethod.POST
     default:
-      throw HTTPRequestError.NotSupported
+      throw HTTPError.NotSupported
   }
 
   return method

@@ -64,29 +64,19 @@ public class OctopusServer {
         }
 
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0)) {
-          let address = try! getPeerName(client)
-
-          print("got a client from \(address)")
-
+          let address       = try! getPeerName(client)
           let requestString = try? readSocket(client)
 
           do {
-            print(requestString)
-            let request = try parseRequest(requestString!)
-            print(" \(request.method) \(request.uri)")
-            try! respond(client, payload: "Welcome on Octopus, Please setup a new Router")
-          } catch let e {
-            let error = e as? HTTPRequestError
-            let (code, message) = getHTTPRequestErrorParams(error!)
-            print("error is: HTTP/1.1 \(code) \(message)")
-            try! respond(client, payload: "HTTP/1.1 \(code) \(message)")
+            let response = try handle(requestString!)
+            try respond(client, response: response)
+          } catch _ {
+            print("error while handling request from \(address)")
           }
 
           release(client.fileDescriptor)
 
-          sync (self.lock) {
-            self.clients.remove(client)
-          }
+          sync (self.lock) { self.clients.remove(client) }
         }
       }
     }
@@ -110,15 +100,38 @@ public class OctopusServer {
 }
 
 /*
+** @function handle
+** @param {String} requestString
+**
+** parses request, applies consequent routes and responds
+*/
+func handle(requestString: String) throws -> HTTPResponse {
+  var response = HTTPResponse()
+
+  print(requestString)
+
+  do {
+    let request: HTTPRequest = try parseRequest(requestString)
+
+    resolve(request, res: response)
+
+    response.payload = "Welcome on Octopus, Please setup a new Router"
+  } catch let e {
+    let error = e as? HTTPError
+    let (code, message) = getHTTPErrorParams(error!)
+
+    response.statusCode    = code
+    response.statusMessage = message
+  }
+
+  return response
+}
+
+/*
 ** @function respond
 ** @param {OctopusSocket} socket to write to
-** @param {String} payload to be written on the socket
+** @param {HTTPResponse} response to be sent back to the client
 */
-func respond(socket: OctopusSocket, payload: String = "") throws {
-  try writeSocket(socket, string: "HTTP/1.1 200 OK\r\n")
-  try writeSocket(socket, string: "Server: Octopus\n")
-  try writeSocket(socket, string: "Content-Length: \(payload.characters.count)\r\n")
-  try writeSocket(socket, string: "Content-type: text-plain\n")
-  try writeSocket(socket, string: "\r\n")
-  try writeSocket(socket, string: payload)
+func respond(socket: OctopusSocket, response: HTTPResponse) throws {
+  try writeSocket(socket, string: getResponseAsString(response))
 }

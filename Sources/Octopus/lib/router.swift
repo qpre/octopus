@@ -4,7 +4,7 @@
 ** HTTPHandlers get the state of the transaction as a request and a response,
 ** and return the transformed state.
 */
-typealias HTTPHandler = (req: HTTPRequest, res: HTTPResponse) -> (req: HTTPRequest, res: HTTPResponse)
+public typealias HTTPHandler = (req: HTTPRequest, res: HTTPResponse) -> (req: HTTPRequest, res: HTTPResponse)
 
 /*
 ** @struct Route
@@ -22,7 +22,7 @@ public struct Route {
 ** @dictionary
 ** Where all the currently available routes are stored
 */
-var routes = [String: Route]()
+var routes = Dictionary<String, Route>()
 
 /*
 ** @function addRoute
@@ -38,14 +38,14 @@ func addRoute(method: String, path: String, handler: HTTPHandler) {
   let hashKey: String = "\(method):\(path)"
 
   // instantiate a struct composed of this route's assets
-  let route: Route(
+  let route = Route(
     method:  method,
     path:    path,
     handler: handler
   )
 
   // adding it to current set of routes
-  route[hashKey] = route
+  routes[hashKey] = route
 }
 
 /*
@@ -57,7 +57,7 @@ func addRoute(method: String, path: String, handler: HTTPHandler) {
 **
 */
 public func get(path: String, handler: HTTPHandler) {
-  addRoute("get", path, handler)
+  addRoute("get", path: path, handler: handler)
 }
 
 /*
@@ -69,13 +69,15 @@ public func get(path: String, handler: HTTPHandler) {
 **
 ** TODO: handle [url-pattern](https://github.com/snd/url-pattern/blob/master/src/url-pattern.coffee)-like paths
 */
-public func resolve(method: String, path: String) {
-  if !(let route: Route = routes["\(method):\(path)"]) {
+public func resolve(req: HTTPRequest, res: HTTPResponse) -> Int {
+  let route = routes["\(req.method):\(req.uri)"]
+
+  if route == nil {
     // route does not exist
     return -1
   }
 
-  route.handler()
+  route!.handler(req: req, res: res)
 
   return 0
 }
