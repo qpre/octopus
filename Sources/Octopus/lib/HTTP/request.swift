@@ -16,7 +16,6 @@ public enum HTTPRequestError: ErrorType {
   case NotSupported
 }
 
-
 /*
 ** @stru HTTPRequest
 ** A structure representing the request
