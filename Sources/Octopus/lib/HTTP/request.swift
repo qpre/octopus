@@ -17,7 +17,7 @@ public enum HTTPRequestError: ErrorType {
 }
 
 /*
-** @stru HTTPRequest
+** @struct HTTPRequest
 ** A structure representing the request
 */
 public struct HTTPRequest {
