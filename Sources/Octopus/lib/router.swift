@@ -63,7 +63,7 @@ public struct Router {
   **
   */
   mutating public func get(path: String, handler: HTTPHandler) {
-    add("get", path: path, handler: handler)
+    add("GET", path: path, handler: handler)
   }
 
   /*
@@ -77,8 +77,6 @@ public struct Router {
   */
   mutating public func resolve(req: HTTPRequest, res: HTTPResponse) throws -> HTTPResponse {
     let route = routes["\(req.method):\(req.uri)"]
-
-    print("\(req.method):\(req.uri)")
 
     var response = res
 
