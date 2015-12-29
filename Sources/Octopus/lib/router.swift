@@ -39,7 +39,7 @@ public struct Router {
   ** creates and stores a new Route to be used when resolving requests.
   **
   */
-  mutating func add(method: String, path: String, handler: HTTPHandler) {
+  mutating public func add(method: String, path: String, handler: HTTPHandler) {
     // creating a hashkey to easyly retrieve this path when resolving
     let hashKey: String = "\(method):\(path)"
 
@@ -62,7 +62,7 @@ public struct Router {
   ** shortcut to add a handler for a specific path when using 'get' method
   **
   */
-  mutating func get(path: String, handler: HTTPHandler) {
+  mutating public func get(path: String, handler: HTTPHandler) {
     add("get", path: path, handler: handler)
   }
 
@@ -75,7 +75,7 @@ public struct Router {
   **
   ** TODO: handle [url-pattern](https://github.com/snd/url-pattern/blob/master/src/url-pattern.coffee)-like paths
   */
-  mutating func resolve(req: HTTPRequest, res: HTTPResponse) throws -> HTTPResponse {
+  mutating public func resolve(req: HTTPRequest, res: HTTPResponse) throws -> HTTPResponse {
     let route = routes["\(req.method):\(req.uri)"]
     var response = res
 
