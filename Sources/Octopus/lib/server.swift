@@ -67,6 +67,8 @@ public class OctopusServer {
           let address       = try! getPeerName(client)
           let requestString = try? readSocket(client)
 
+          print(requestString)
+
           do {
             let response = try self.handle(requestString!)
             try respond(client, response: response)
@@ -90,8 +92,6 @@ public class OctopusServer {
   */
   private func handle(requestString: String) throws -> HTTPResponse {
     var response = HTTPResponse()
-
-    print(requestString)
 
     do {
       let request: HTTPRequest = try parseRequest(requestString)
