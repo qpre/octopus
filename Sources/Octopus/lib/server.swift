@@ -103,6 +103,7 @@ public class OctopusServer {
 
       response.statusCode    = code
       response.statusMessage = message
+      response.payload = "HTTP/1.1 \(code) \(message)\r\n\r\n"
     }
 
     return response
