@@ -91,8 +91,11 @@ public class OctopusServer {
   private func handle(requestString: String) throws -> HTTPResponse {
     var response = HTTPResponse()
 
+    print(requestString)
+
     do {
       let request: HTTPRequest = try parseRequest(requestString)
+
       response = try self.router.resolve(request, res: response)
     } catch let e {
       let error = e as? HTTPError
@@ -128,5 +131,6 @@ public class OctopusServer {
 ** @param {HTTPResponse} response to be sent back to the client
 */
 func respond(socket: OctopusSocket, response: HTTPResponse) throws {
+  print("respond with \(response.statusCode)")
   try writeSocket(socket, string: getResponseAsString(response))
 }
