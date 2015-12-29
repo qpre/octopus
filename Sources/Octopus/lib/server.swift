@@ -31,6 +31,9 @@ public class OctopusServer {
   // The socket that will be used by the server for incoming connections
   var socket:  OctopusSocket
 
+  // The set of handlers to be used when resolving request
+  var router:  Router
+
   // All current clients will be stored in here
   var clients: Set<OctopusSocket>
 
@@ -42,14 +45,11 @@ public class OctopusServer {
   ** @param {Int} port to bind the socket to.
   */
   public init(port: Int = 8080) {
-    print("Starting server...")
-
     self.socket  = try! createSocket(in_port_t(port))
 
-    print("Listening on port \(port)...")
-
     self.clients = Set<OctopusSocket>()
-    self.lock = NSLock()
+    self.router  = Router()
+    self.lock    = NSLock()
   }
 
   /*
@@ -68,7 +68,7 @@ public class OctopusServer {
           let requestString = try? readSocket(client)
 
           do {
-            let response = try handle(requestString!)
+            let response = try self.handle(requestString!)
             try respond(client, response: response)
           } catch _ {
             print("error while handling request from \(address)")
@@ -80,6 +80,29 @@ public class OctopusServer {
         }
       }
     }
+  }
+
+  /*
+  ** @function handle
+  ** @param {String} requestString
+  **
+  ** parses request, applies consequent routes and responds
+  */
+  private func handle(requestString: String) throws -> HTTPResponse {
+    var response = HTTPResponse()
+
+    do {
+      let request: HTTPRequest = try parseRequest(requestString)
+      response = try self.router.resolve(request, res: response)
+    } catch let e {
+      let error = e as? HTTPError
+      let (code, message) = getHTTPErrorParams(error!)
+
+      response.statusCode    = code
+      response.statusMessage = message
+    }
+
+    return response
   }
 
   /*
@@ -97,34 +120,6 @@ public class OctopusServer {
       self.clients.removeAll(keepCapacity: true)
     }
   }
-}
-
-/*
-** @function handle
-** @param {String} requestString
-**
-** parses request, applies consequent routes and responds
-*/
-func handle(requestString: String) throws -> HTTPResponse {
-  var response = HTTPResponse()
-
-  print(requestString)
-
-  do {
-    let request: HTTPRequest = try parseRequest(requestString)
-
-    resolve(request, res: response)
-
-    response.payload = "Welcome on Octopus, Please setup a new Router"
-  } catch let e {
-    let error = e as? HTTPError
-    let (code, message) = getHTTPErrorParams(error!)
-
-    response.statusCode    = code
-    response.statusMessage = message
-  }
-
-  return response
 }
 
 /*

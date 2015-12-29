@@ -4,7 +4,7 @@
 ** HTTPHandlers get the state of the transaction as a request and a response,
 ** and return the transformed state.
 */
-public typealias HTTPHandler = (req: HTTPRequest, res: HTTPResponse) -> (req: HTTPRequest, res: HTTPResponse)
+public typealias HTTPHandler = (req: HTTPRequest, res: HTTPResponse) -> HTTPResponse
 
 /*
 ** @struct Route
@@ -19,65 +19,73 @@ public struct Route {
 }
 
 /*
-** @dictionary
-** Where all the currently available routes are stored
+** @struct Router
+**
+** A wrapping structure for routing elements
 */
-var routes = Dictionary<String, Route>()
+public struct Router {
+  /*
+  ** @dictionary
+  ** Where all the currently available routes are stored
+  */
+  var routes = Dictionary<String, Route>()
 
-/*
-** @function addRoute
-** @param {String} method
-** @param {String} path
-** @param {Closure} handler
-**
-** creates and stores a new Route to be used when resolving requests.
-**
-*/
-func addRoute(method: String, path: String, handler: HTTPHandler) {
-  // creating a hashkey to easyly retrieve this path when resolving
-  let hashKey: String = "\(method):\(path)"
+  /*
+  ** @function addRoute
+  ** @param {String} method
+  ** @param {String} path
+  ** @param {Closure} handler
+  **
+  ** creates and stores a new Route to be used when resolving requests.
+  **
+  */
+  mutating func add(method: String, path: String, handler: HTTPHandler) {
+    // creating a hashkey to easyly retrieve this path when resolving
+    let hashKey: String = "\(method):\(path)"
 
-  // instantiate a struct composed of this route's assets
-  let route = Route(
-    method:  method,
-    path:    path,
-    handler: handler
-  )
+    // instantiate a struct composed of this route's assets
+    let route = Route(
+      method:  method,
+      path:    path,
+      handler: handler
+    )
 
-  // adding it to current set of routes
-  routes[hashKey] = route
-}
-
-/*
-** @function get
-** @param {String} method
-** @param {String} path
-**
-** shortcut to add a handler for a specific path when using 'get' method
-**
-*/
-public func get(path: String, handler: HTTPHandler) {
-  addRoute("get", path: path, handler: handler)
-}
-
-/*
-** @function resolve
-** @param {String} method
-** @param {String} path
-**
-** applies all the handlers available for this route.
-**
-** TODO: handle [url-pattern](https://github.com/snd/url-pattern/blob/master/src/url-pattern.coffee)-like paths
-*/
-public func resolve(req: HTTPRequest, res: HTTPResponse) -> Int {
-  let route = routes["\(req.method):\(req.uri)"]
-
-  if route == nil {
-    // route does not exist
-    return -1
+    // adding it to current set of routes
+    routes[hashKey] = route
   }
 
-  route!.handler(req: req, res: res)
+  /*
+  ** @function get
+  ** @param {String} method
+  ** @param {String} path
+  **
+  ** shortcut to add a handler for a specific path when using 'get' method
+  **
+  */
+  mutating func get(path: String, handler: HTTPHandler) {
+    add("get", path: path, handler: handler)
+  }
 
-  return 0
+  /*
+  ** @function resolve
+  ** @param {String} method
+  ** @param {String} path
+  **
+  ** applies all the handlers available for this route.
+  **
+  ** TODO: handle [url-pattern](https://github.com/snd/url-pattern/blob/master/src/url-pattern.coffee)-like paths
+  */
+  mutating func resolve(req: HTTPRequest, res: HTTPResponse) throws -> HTTPResponse {
+    let route = routes["\(req.method):\(req.uri)"]
+    var response = res
+
+    if route == nil {
+      // route does not exist
+      throw HTTPError.BadRequest
+    }
+
+    response = route!.handler(req: req, res: res)
+
+    return response
+  }
 }
