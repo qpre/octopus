@@ -28,11 +28,11 @@ func sync(handle: NSLock, closure: () -> ()) {
 ** A wrapper-class for Octopus's HTTP server layer
 */
 public class OctopusServer {
+  // The set of handlers to be used when resolving request
+  public var router:  Router
+
   // The socket that will be used by the server for incoming connections
   var socket:  OctopusSocket
-
-  // The set of handlers to be used when resolving request
-  var router:  Router
 
   // All current clients will be stored in here
   var clients: Set<OctopusSocket>
