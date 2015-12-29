@@ -77,6 +77,9 @@ public struct Router {
   */
   mutating public func resolve(req: HTTPRequest, res: HTTPResponse) throws -> HTTPResponse {
     let route = routes["\(req.method):\(req.uri)"]
+
+    print("\(req.method):\(req.uri)")
+
     var response = res
 
     if route == nil {
