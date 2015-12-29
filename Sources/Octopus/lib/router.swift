@@ -81,7 +81,7 @@ public struct Router {
 
     if route == nil {
       // route does not exist
-      throw HTTPError.BadRequest
+      throw HTTPError.NotFound
     }
 
     response = route!.handler(req: req, res: res)
