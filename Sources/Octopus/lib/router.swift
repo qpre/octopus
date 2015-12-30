@@ -1,3 +1,5 @@
+import Foundation
+
 /*
 ** @type HTTPHandler
 **
@@ -79,6 +81,15 @@ public struct Router {
     let route = routes["\(req.method):\(req.uri)"]
 
     var response = res
+
+    // firstly match files from public directory
+    let location = String("./public/index.html")
+    let fileContent = try? String(contentsOfFile: location, encoding: NSUTF8StringEncoding)
+
+    if fileContent != nil {
+      response.payload = fileContent!
+      return response
+    }
 
     if route == nil {
       // route does not exist
