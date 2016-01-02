@@ -48,7 +48,7 @@ public class OctopusServer {
     self.socket  = try! createSocket(in_port_t(port))
 
     self.clients = Set<OctopusSocket>()
-    self.router  = Router()
+    self.router  = OctopusRouter()
     self.lock    = NSLock()
   }
 
