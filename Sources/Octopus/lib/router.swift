@@ -6,7 +6,7 @@ import Foundation
 ** HTTPHandlers get the state of the transaction as a request and a response,
 ** and return the transformed state.
 */
-public typealias HTTPHandler = (req: HTTPRequest, res: HTTPResponse) -> HTTPResponse
+public typealias HTTPHandler = (req: HTTPRequest, res: HTTPResponse, params: Dictionary<String, String>?) -> HTTPResponse
 
 /*
 ** @struct Route
@@ -82,8 +82,8 @@ public struct OctopusRouter {
 
     var response = res
 
-    // firstly match files from public directory
-    let location = String("./public/index.html")
+    // first match files from public directory
+    let location = String("./public/\(req.uri)")
     let fileContent = try? String(contentsOfFile: location, encoding: NSUTF8StringEncoding)
 
     if fileContent != nil {
@@ -96,7 +96,7 @@ public struct OctopusRouter {
       throw HTTPError.NotFound
     }
 
-    response = route!.handler(req: req, res: res)
+    response = route!.handler(req: req, res: res, params: req.params)
 
     return response
   }

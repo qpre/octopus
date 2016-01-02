@@ -26,6 +26,7 @@ public struct HTTPRequest {
   var method:  HTTPMethod
   var uri:     String = ""
   var version: String = ""
+  var params:  [String:String]
 }
 
 /*
