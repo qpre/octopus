@@ -24,18 +24,18 @@ func sync(handle: NSLock, closure: () -> ()) {
 }
 
 /*
-** @class OctopusServer
+** @class Server
 ** A wrapper-class for Octopus's HTTP server layer
 */
-public class OctopusServer {
+public class Server {
   // The set of handlers to be used when resolving request
-  public var router:  OctopusRouter
+  public var router:  Router
 
   // The socket that will be used by the server for incoming connections
-  var socket:  OctopusSocket
+  var socket:  Socket
 
   // All current clients will be stored in here
-  var clients: Set<OctopusSocket>
+  var clients: Set<Socket>
 
   // A lock to be used for thread-safe actions.
   var lock: NSLock
@@ -47,8 +47,8 @@ public class OctopusServer {
   public init(port: Int = 8080) {
     self.socket  = try! createSocket(in_port_t(port))
 
-    self.clients = Set<OctopusSocket>()
-    self.router  = OctopusRouter()
+    self.clients = Set<Socket>()
+    self.router  = Router()
     self.lock    = NSLock()
   }
 
@@ -128,10 +128,10 @@ public class OctopusServer {
 
 /*
 ** @function respond
-** @param {OctopusSocket} socket to write to
+** @param {Socket} socket to write to
 ** @param {HTTPResponse} response to be sent back to the client
 */
-func respond(socket: OctopusSocket, response: HTTPResponse) throws {
+func respond(socket: Socket, response: HTTPResponse) throws {
   print("respond with \(response.statusCode)")
   try writeSocket(socket, string: getResponseAsString(response))
 }

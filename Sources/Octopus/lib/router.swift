@@ -6,7 +6,7 @@ import Foundation
 ** HTTPHandlers get the state of the transaction as a request and a response,
 ** and return the transformed state.
 */
-public typealias HTTPHandler = (req: HTTPRequest, res: HTTPResponse, params: Dictionary<String, String>?) -> HTTPResponse
+public typealias HTTPHandler = (req: HTTPRequest, res: HTTPResponse) -> HTTPResponse
 
 /*
 ** @struct Route
@@ -21,11 +21,11 @@ public struct Route {
 }
 
 /*
-** @struct OctopusRouter
+** @class Router
 **
 ** A wrapping structure for routing elements
 */
-public class OctopusRouter {
+public class Router {
   /*
   ** @dictionary
   ** Where all the currently available routes are stored
@@ -96,7 +96,7 @@ public class OctopusRouter {
       throw HTTPError.NotFound
     }
 
-    response = route!.handler(req: req, res: res, params: req.params)
+    response = route!.handler(req: req, res: res)
 
     return response
   }

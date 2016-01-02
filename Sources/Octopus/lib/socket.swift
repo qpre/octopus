@@ -55,8 +55,8 @@ enum SocketError: ErrorType {
   case RecvFailed(String)
 }
 
-// OctopusSocket
-public struct OctopusSocket: Hashable, Equatable {
+// Socket
+public struct Socket: Hashable, Equatable {
   public var hashValue: Int = -1
   public var fileDescriptor: Int32 {
     get {
@@ -72,7 +72,7 @@ public struct OctopusSocket: Hashable, Equatable {
   }
 }
 
-public func ==(socket1: OctopusSocket, socket2: OctopusSocket) -> Bool {
+public func ==(socket1: Socket, socket2: Socket) -> Bool {
   return socket1.fileDescriptor == socket2.fileDescriptor
 }
 
@@ -91,14 +91,14 @@ func sockaddr_cast(p: UnsafeMutablePointer<Void>) -> UnsafeMutablePointer<sockad
 ** @param {in_port_t} port to bind to
 ** @param {Int32} connectionTimeout
 */
-public func createSocket(port: in_port_t = 8080, connectionTimeout: Int32 = SOMAXCONN) throws -> OctopusSocket {
+public func createSocket(port: in_port_t = 8080, connectionTimeout: Int32 = SOMAXCONN) throws -> Socket {
   var sockAddr: sockaddr_in
   var sockOpt: Int32
   var sockOptValue: Int32 = 1
   let sockLength = UInt8(sizeof(sockaddr_in))
 
   // preparing our magnificent wrapper
-  var oSocket: OctopusSocket = OctopusSocket()
+  var oSocket: Socket = Socket()
 
   // Create a new POSIX socket
   oSocket.fileDescriptor = socket(AF_INET, sockStream, 0);
@@ -147,9 +147,9 @@ public func createSocket(port: in_port_t = 8080, connectionTimeout: Int32 = SOMA
   return oSocket
 }
 
-func acceptClientSocket(socket: OctopusSocket) throws -> OctopusSocket {
+func acceptClientSocket(socket: Socket) throws -> Socket {
   var sockAddr = getSockAddr()
-  var oSocket  = OctopusSocket()
+  var oSocket  = Socket()
   var length: socklen_t = 0
 
   oSocket.fileDescriptor = accept(socket.fileDescriptor, &sockAddr, &length)
@@ -163,11 +163,11 @@ func acceptClientSocket(socket: OctopusSocket) throws -> OctopusSocket {
   return oSocket
 }
 
-public func writeSocket(socket: OctopusSocket, string: String) throws {
+public func writeSocket(socket: Socket, string: String) throws {
   try writeUInt8(socket, data: [UInt8](string.utf8))
 }
 
-func writeUInt8(socket: OctopusSocket, data: [UInt8]) throws {
+func writeUInt8(socket: Socket, data: [UInt8]) throws {
   try data.withUnsafeBufferPointer { pointer in
     var sent = 0
 
@@ -183,7 +183,7 @@ func writeUInt8(socket: OctopusSocket, data: [UInt8]) throws {
   }
 }
 
-public func readSocket(socket: OctopusSocket) throws -> String {
+public func readSocket(socket: Socket) throws -> String {
   var res: String = ""
   var bitsRead : UInt8 = 0
   let CR = UInt8(13)
@@ -199,7 +199,7 @@ public func readSocket(socket: OctopusSocket) throws -> String {
   return res
 }
 
-func readBuffer(socket: OctopusSocket) throws -> UInt8 {
+func readBuffer(socket: Socket) throws -> UInt8 {
   var buffer = [UInt8](count: 1, repeatedValue: 0)
 
   // get bits from the socket
@@ -213,7 +213,7 @@ func readBuffer(socket: OctopusSocket) throws -> UInt8 {
   return buffer[0]
 }
 
-public func getPeerName(socket: OctopusSocket) throws -> String {
+public func getPeerName(socket: Socket) throws -> String {
     var addr = sockaddr()
     var length: socklen_t = socklen_t(sizeof(sockaddr))
     var hostBuffer = [CChar](count: Int(NI_MAXHOST), repeatedValue: 0)
