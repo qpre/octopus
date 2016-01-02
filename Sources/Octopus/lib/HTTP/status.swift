@@ -5,6 +5,7 @@
 public enum HTTPMethod {
   case GET
   case POST
+  case HEAD
 }
 
 /*

@@ -28,6 +28,8 @@ func parseMethod(string: String) throws -> HTTPMethod {
   let method: HTTPMethod
 
   switch string.uppercaseString {
+    case "HEAD":
+      method = HTTPMethod.HEAD
     case "GET":
       method = HTTPMethod.GET
     case "POST":

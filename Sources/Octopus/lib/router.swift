@@ -21,11 +21,11 @@ public struct Route {
 }
 
 /*
-** @struct Router
+** @struct OctopusRouter
 **
 ** A wrapping structure for routing elements
 */
-public struct Router {
+public struct OctopusRouter {
   /*
   ** @dictionary
   ** Where all the currently available routes are stored
