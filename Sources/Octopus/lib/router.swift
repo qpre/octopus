@@ -84,10 +84,10 @@ public class Router {
 
     // first match files from public directory
     let location = String("./public/\(req.uri)")
-    let fileContent = try? String(contentsOfFile: location)
+    let fileContent = NSData(contentsOfFile: location)
 
     if fileContent != nil {
-      response.payload = fileContent!
+      response.payload = String(fileContent!)
       return response
     }
 
