@@ -25,7 +25,7 @@ public struct Route {
 **
 ** A wrapping structure for routing elements
 */
-public struct OctopusRouter {
+public class OctopusRouter {
   /*
   ** @dictionary
   ** Where all the currently available routes are stored
@@ -41,7 +41,7 @@ public struct OctopusRouter {
   ** creates and stores a new Route to be used when resolving requests.
   **
   */
-  mutating public func add(method: String, path: String, handler: HTTPHandler) {
+  public func add(method: String, path: String, handler: HTTPHandler) {
     // creating a hashkey to easyly retrieve this path when resolving
     let hashKey: String = "\(method):\(path)"
 
@@ -64,7 +64,7 @@ public struct OctopusRouter {
   ** shortcut to add a handler for a specific path when using 'get' method
   **
   */
-  mutating public func get(path: String, handler: HTTPHandler) {
+  public func get(path: String, handler: HTTPHandler) {
     add("GET", path: path, handler: handler)
   }
 
@@ -77,7 +77,7 @@ public struct OctopusRouter {
   **
   ** TODO: handle [url-pattern](https://github.com/snd/url-pattern/blob/master/src/url-pattern.coffee)-like paths
   */
-  mutating public func resolve(req: HTTPRequest, res: HTTPResponse) throws -> HTTPResponse {
+  public func resolve(req: HTTPRequest, res: HTTPResponse) throws -> HTTPResponse {
     let route = routes["\(req.method):\(req.uri)"]
 
     var response = res
