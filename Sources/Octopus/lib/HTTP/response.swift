@@ -2,14 +2,14 @@
 ** @stru HTTPResponse
 ** A structure representing the response
 */
-public struct HTTPResponse {
-  var statusCode:    Int    = 200
-  var statusMessage: String = "OK"
+public class HTTPResponse {
+  public var statusCode:    Int    = 200
+  public var statusMessage: String = "OK"
 
-  var serverKind:  String = "Octopus"
-  var contentType: String = "text-plain"
+  public var serverKind:  String = "Octopus"
+  public var contentType: String = "text-plain"
 
-  var payload: String = ""
+  public var payload: String = ""
 }
 
 public func getResponseHeaders(response: HTTPResponse) -> String {
