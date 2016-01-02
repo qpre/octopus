@@ -84,7 +84,7 @@ public class Router {
 
     // first match files from public directory
     let location = String("./public/\(req.uri)")
-    let fileContent = try? String(contentsOfFile: location, encoding: NSUTF8StringEncoding)
+    let fileContent = try? String(contentsOfFile: location)
 
     if fileContent != nil {
       response.payload = fileContent!
