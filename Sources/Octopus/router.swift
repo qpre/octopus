@@ -29,15 +29,17 @@ func extractRouteComponents(path: String) -> (Regex, [String]) {
   for (index, fragment) in splitPath.enumerate() {
     // is it a parameter ?
     if fragment[fragment.startIndex] != ":" {
-      // extract param name
-      let param = fragment.replace(":", template: "")
-
-      // replace current index with regex param
-      splitPath[index] = "\\d"
-
-      // save param name at the right index
-      params.append(param)
+      continue
     }
+
+    // extract param name
+    let param = fragment.replace(":", template: "")
+
+    // replace current index with regex param
+    splitPath[index] = "\\d"
+
+    // save param name at the right index
+    params.append(param)
   }
 
   var joinPath: String = ""
