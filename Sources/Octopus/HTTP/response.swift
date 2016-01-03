@@ -17,7 +17,7 @@ public func getResponseHeaders(response: HTTPResponse) -> String {
 
   headers += "HTTP/1.1 \(response.statusCode) \(response.statusMessage)\r\n"
   headers += "Server: \(response.serverKind)\n"
-  headers += "Content-Length: \(response.payload.utf16.count)\r\n"
+  headers += "Content-Length: \(response.payload.utf8.count)\r\n"
   headers += "Content-type: \(response.contentType)\n"
 
   headers += "\r\n"
