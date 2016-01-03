@@ -33,7 +33,7 @@ func extractRouteComponents(path: String) -> (Regex, [String]) {
       let param = fragment.replace(":", template: "")
 
       // replace current index with regex param
-      splitPath[index] = ""
+      splitPath[index] = "\\d"
 
       // save param name at the right index
       params.append(param)
@@ -45,6 +45,8 @@ func extractRouteComponents(path: String) -> (Regex, [String]) {
   for fragment in splitPath {
     joinPath += "/" + fragment
   }
+
+  print(joinPath)
 
   regex = Regex(pattern: joinPath)
 
