@@ -16,8 +16,39 @@ public typealias HTTPHandler = (req: HTTPRequest, res: HTTPResponse) -> HTTPResp
 */
 public struct Route {
   var method:  String
-  var path:    String
+  var regex:   Regex
   var handler: HTTPHandler
+  var params:  [String]
+}
+
+func extractRouteComponents(path: String) -> (Regex, [String]) {
+  var splitPath: [String] = path.characters.split {$0 == "/"}.map(String.init)
+  var params: [String] = []
+  var regex: Regex
+
+  for (index, fragment) in splitPath.enumerate() {
+    // is it a parameter ?
+    if fragment[fragment.startIndex] != ":" {
+      // extract param name
+      let param = fragment.replace(":", template: "")
+
+      // replace current index with regex param
+      splitPath[index] = ""
+
+      // save param name at the right index
+      params.append(param)
+    }
+  }
+
+  var joinPath: String = ""
+
+  for fragment in splitPath {
+    joinPath += "/" + fragment
+  }
+
+  regex = Regex(pattern: joinPath)
+
+  return (regex, params)
 }
 
 /*
@@ -30,7 +61,7 @@ public class Router {
   ** @dictionary
   ** Where all the currently available routes are stored
   */
-  var routes = Dictionary<String, Route>()
+  var routes = [Route]()
 
   /*
   ** @function addRoute
@@ -42,18 +73,18 @@ public class Router {
   **
   */
   public func add(method: String, path: String, handler: HTTPHandler) {
-    // creating a hashkey to easyly retrieve this path when resolving
-    let hashKey: String = "\(method):\(path)"
+    let (regex, params) = extractRouteComponents(path)
 
     // instantiate a struct composed of this route's assets
     let route = Route(
       method:  method,
-      path:    path,
-      handler: handler
+      regex:   regex,
+      handler: handler,
+      params:  params
     )
 
     // adding it to current set of routes
-    routes[hashKey] = route
+    routes.append(route)
   }
 
   /*
@@ -78,8 +109,7 @@ public class Router {
   ** TODO: handle [url-pattern](https://github.com/snd/url-pattern/blob/master/src/url-pattern.coffee)-like paths
   */
   public func resolve(req: HTTPRequest, res: HTTPResponse) throws -> HTTPResponse {
-    let route = routes["\(req.method):\(req.uri)"]
-
+    var route: Route?
     var response = res
 
     // first match files from public directory
@@ -89,6 +119,12 @@ public class Router {
     if fileContent != nil {
       response.payload = String(data: fileContent!, encoding: NSUTF8StringEncoding)!
       return response
+    }
+
+    for r in routes {
+      if req.uri.matchRegex(r.regex) {
+        route = r
+      }
     }
 
     if route == nil {
