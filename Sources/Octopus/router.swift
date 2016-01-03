@@ -87,7 +87,7 @@ public class Router {
     let fileContent = NSData(contentsOfFile: location)
 
     if fileContent != nil {
-      response.payload = String(fileContent!)
+      response.payload = String(data: fileContent!, encoding: NSUTF8StringEncoding)
       return response
     }
 
