@@ -1,8 +1,8 @@
 /*
-** @function getParams
+** @function getQueryParams
 ** extracts params from URI
 */
-public func getParams(uri: String) -> Dictionary<String, String>? {
+public func getQueryParams(uri: String) -> Dictionary<String, String>? {
   var res = [String:String]()
   let splitUri = uri.characters.split {$0 == "?"}.map(String.init)
 
@@ -25,6 +25,27 @@ public func getParams(uri: String) -> Dictionary<String, String>? {
 }
 
 /*
+** @function getQueryParams
+** extracts params from URI
+*/
+public func getURIParams(req: HTTPRequest, route: Route) -> Dictionary<String, String>? {
+  var res = [String:String]()
+  var values: [String]
+
+  values = route.regex.exec(req.uri)
+
+  for (index, key) in route.params.enumerate() {
+    if index > values.count - 1 {
+      break
+    }
+
+    res.updateValue(values[index], forKey: key)
+  }
+
+  return res
+}
+
+/*
 ** @function parseRequest
 ** extracts request data from request string
 */
@@ -38,10 +59,11 @@ public func parseRequest(requestAsString: String) throws -> HTTPRequest {
   }
 
   request = HTTPRequest(
-    method:  try! parseMethod(params[0]),
-    uri:     params[1],
-    version: params[2],
-    params:  getParams(params[1])!
+    method:       try! parseMethod(params[0]),
+    uri:          params[1],
+    version:      params[2],
+    queryParams:  getQueryParams(params[1])!,
+    URIParams:    [String:String]()
   )
 
   return request

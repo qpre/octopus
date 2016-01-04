@@ -112,12 +112,15 @@ public class Router {
   **
   ** TODO: handle [url-pattern](https://github.com/snd/url-pattern/blob/master/src/url-pattern.coffee)-like paths
   */
-  public func resolve(req: HTTPRequest, res: HTTPResponse) throws -> HTTPResponse {
+  public func resolve(requestString: String, res: HTTPResponse) throws -> HTTPResponse {
     var route: Route?
     var response = res
+    var request: HTTPRequest
+
+    request = try parseRequest(requestString)
 
     // first match files from public directory
-    let location = String("./public/\(req.uri)")
+    let location = String("./public/\(request.uri)")
     let fileContent = NSData(contentsOfFile: location)
 
     if fileContent != nil {
@@ -126,8 +129,9 @@ public class Router {
     }
 
     for r in routes {
-      if req.uri.matchRegex(r.regex) {
+      if request.uri.matchRegex(r.regex) {
         route = r
+        request.URIParams = getURIParams(request, route: route!)!
       }
     }
 
@@ -136,7 +140,7 @@ public class Router {
       throw HTTPError.NotFound
     }
 
-    response = route!.handler(req: req, res: res)
+    response = route!.handler(req: request, res: res)
 
     return response
   }

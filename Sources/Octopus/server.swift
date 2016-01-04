@@ -94,9 +94,7 @@ public class Server {
     var response = HTTPResponse()
 
     do {
-      let request: HTTPRequest = try parseRequest(requestString)
-
-      response = try self.router.resolve(request, res: response)
+      response = try self.router.resolve(requestString, res: response)
     } catch let e {
       let error = e as? HTTPError
       let (code, message) = getHTTPErrorParams(error!)

@@ -23,10 +23,11 @@ public enum HTTPError: ErrorType {
 ** A structure representing the request
 */
 public struct HTTPRequest {
-  var method:  HTTPMethod
-  var uri:     String = ""
-  var version: String = ""
-  var params:  [String:String]
+  var method:       HTTPMethod
+  var uri:          String = ""
+  var version:      String = ""
+  var queryParams:  [String:String]
+  var URIParams:    [String:String]
 }
 
 /*
