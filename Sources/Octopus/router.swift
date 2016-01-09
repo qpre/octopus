@@ -104,6 +104,18 @@ public class Router {
   }
 
   /*
+  ** @function post
+  ** @param {String} method
+  ** @param {String} path
+  **
+  ** shortcut to add a handler for a specific path when using 'post' method
+  **
+  */
+  public func post(path: String, handler: HTTPHandler) {
+    add("POST", path: path, handler: handler)
+  }
+
+  /*
   ** @function resolve
   ** @param {String} method
   ** @param {String} path
